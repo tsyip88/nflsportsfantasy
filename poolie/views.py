@@ -59,8 +59,8 @@ def admin_actions(request):
             league_name = "nfl"
             teams.team_data_retriever.TeamDataRetriever.load_teams(sport_name, league_name)
         if request.POST.has_key('load_images'):
-            teams = teams.models.Team.objects.all()
-            for team in teams:
+            team_list = teams.models.Team.objects.all()
+            for team in team_list:
                 team.image_location = team.full_name().replace(' ','').replace('.','') + '.png'
                 team.save()
     return render(request, "admin_actions.html")
