@@ -1,0 +1,18 @@
+<h1>Results</h1>
+<table>
+	<tr>
+		<th>Team</th>
+		{% for user in users %}
+		<th>{{user}}</th>
+		{% endfor %}
+	</tr>
+	{% for selected_teams_for_matchup in selected_teams %}
+	<tr>
+		<td>
+		<img src="{{STATIC_URL}}{{selected_teams_for_matchup.matchup.home_team.image_location}}"/> @ <img src="{{STATIC_URL}}{{selected_teams_for_matchup.matchup.away_team.image_location}}"/></td>
+		{% for selected_team in selected_teams_for_matchup.selections %}
+			<td>{{selected_team}}</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</table>

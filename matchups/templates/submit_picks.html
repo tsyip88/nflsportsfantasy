@@ -1,0 +1,14 @@
+<h1>Submitting matchups</h1>
+
+{% if form_list %}
+	<form action="{% url 'matchups:submit_picks' %}" method="post">
+	{% csrf_token %}
+	
+	{% for form in form_list %}
+		{{form}}
+	{% endfor %}
+		<input type="submit" value="submit_picks" />
+	</form>
+{% else %}
+	<p>No matchups available</p>
+{% endif %}
