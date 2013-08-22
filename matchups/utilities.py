@@ -24,7 +24,6 @@ def current_week_number():
         return (int(time_elapsed_since_week_1.days)/DAYS_IN_A_WEEK) + 1
     
 def matchups_for_week(week_number):
-#     matchups = list()
     start = start_date(week_number)
     end = end_date(week_number)
     tie_breakers = TieBreaker.objects.filter(matchup__date_time__gt=start, matchup__date_time__lt=end)
