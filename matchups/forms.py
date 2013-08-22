@@ -24,3 +24,8 @@ class PickForm(forms.ModelForm):
                                     + away_team.full_name() + ' at ' \
                                     + home_team.full_name()
                     self.fields['selected_team'].label = matchup_label
+                    
+class TieBreakerForm(forms.ModelForm):
+    class Meta:
+        model = matchups.models.TieBreakerPick
+        fields = {'predicted_total_score'}
