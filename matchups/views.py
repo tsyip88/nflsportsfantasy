@@ -23,9 +23,16 @@ def submit_picks_for_week(request, week_number):
         form_list.append(form)
         form = create_form_for_tie_breaker(tie_breaker_matchup, request)
         form_list.append(form)
+    weeks = range(1,utilities.week_number_for_last_matchup())
+    date_format = "%b %d"
+    week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
     context = {'matchup_list' : matchup_list,
                'form_list' : form_list,
-               'error_message' : error_message}
+               'error_message' : error_message,
+               'selected_week': int(week_number),
+               'submitted_picks': request.method=="POST",
+               'weeks' : weeks,
+               'week_dates' : week_dates}
     return render(request, 'submit_picks.html', context)
 
 def create_form_for_matchup(matchup, request):
@@ -58,9 +65,9 @@ def scoreboard_for_week(request, week_number):
         user_list = order_list(request.user, User.objects.all())
     elif request.user.is_authenticated():
         user_list.append(request.user)
-    return scoreboard(request, matchup_list, tie_breaker_matchup, user_list)
+    return scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number)
     
-def scoreboard(request, matchup_list, tie_breaker_matchup, user_list):
+def scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number):
     selected_teams = list()
     for matchup in matchup_list:
         matchup_to_selections = MatchupToSelections(matchup, user_list)
@@ -68,9 +75,15 @@ def scoreboard(request, matchup_list, tie_breaker_matchup, user_list):
     if tie_breaker_matchup:
         tie_breaker_matchup_selections = TieBreakerMatchupSelections(tie_breaker_matchup, user_list)
     wins = calculate_wins(user_list, matchup_list)
+    weeks = range(1,utilities.week_number_for_last_matchup())
+    date_format = "%b %d"
+    week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
     context = {'tie_breaker_matchup_selections': tie_breaker_matchup_selections,
                'users' : user_list,
                'selected_teams': selected_teams,
+               'weeks': weeks,
+               'selected_week': int(week_number),
+               'week_dates': week_dates,
                'wins': wins}
     return render(request, 'scoreboard.html', context)
 

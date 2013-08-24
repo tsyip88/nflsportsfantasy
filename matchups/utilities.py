@@ -1,5 +1,6 @@
 import datetime
 import pytz
+import math
 from matchups.models import Matchup, TieBreaker, Pick, TieBreakerPick
 
 DAYS_IN_A_WEEK = 7
@@ -22,6 +23,18 @@ def current_week_number():
         return 1
     else:
         return (int(time_elapsed_since_week_1.days)/DAYS_IN_A_WEEK) + 1
+    
+def week_number_for_last_matchup():
+    matchups = Matchup.objects.all().order_by('date_time')
+    if matchups.count() > 0:
+        return week_number_for_matchup(matchups[matchups.count()-1])
+    return -1
+
+def week_number_for_matchup(matchup):
+    matchup_date = matchup.date_time
+    offset_from_week_1 = matchup_date - week_1_start_datetime()
+    week_number = math.floor((offset_from_week_1.days/DAYS_IN_A_WEEK))+1
+    return int(week_number)
     
 def matchups_for_week(week_number):
     start = start_date(week_number)

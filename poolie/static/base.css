@@ -1,24 +1,96 @@
-* {margin:0; padding:0; border:0;}
+* {
+	margin:0;
+	padding:0;
+}
 
-body {font-size:12pt; margin:0; padding: 0; border:0; font-family: arial;}
+body {
+	font-family: arial;
+	background-color:#444;
+}
 
-#page {margin-left:auto; margin-right:auto; width:58em; margin-top:0.5em; background-color:#e0f0e0}
-#header, #footer {background-color:#383; color:#ececec, clear:both}
-#header {text-align:right}
-#footer {text-align:center}
-#content {clear:both; position:relative; background-color:#fff}
+#content_title em{
+	font-family: helvetica;
+	font-weight: lighter;
+	font-size: 0.6em;
+}
 
-/* navigation bar */
-#navigation {position:relative;}
-#navigation li {float:left; font-weight: bold; color:#33339f; font-size: 0.9em; padding:0.25em}
+#page {
+	margin-left:auto;
+	margin-right:auto;
+	width:55em;
+	background-color:#e0f0e0;
+}
 
-/* table */
-/*table { border-collapse:collapse; }*/
-img {vertical-align:middle}
-table { border-collapse:separate; border-spacing:0.1em 0.1em; }
-td { border:1px solid #ccc; text-align:center; vertical-align:middle; }
-#winning_pick { border:2px solid #00f; background-color:#0f0}
-#winning_team_cell {background-color:#0ff}
-#winning_tie_breaker {background-color:#ff0}
+#header, #footer {
+	background-color:#383;
+	color:#ececec;
+	padding:0.3em;
+}
 
-ul {list-style-type: none;}
+#header {
+	margin-top:0.5em;
+	text-align:right;
+}
+
+#footer {
+	text-align:center;
+}
+
+#navigation {
+	position:relative;
+}
+
+#navigation li {
+	float:left;
+	font-weight: bold;
+	color:#33339f;
+	padding:0.5em;
+}
+
+#content {
+	clear:both;
+	position:relative;
+	min-height:60em;
+	background-color:#fff;
+	padding:0.5em;
+}
+
+#content * {
+padding:0.1em;
+}
+
+.form {
+	margin-top:0.75em;
+}
+
+#submit_button {
+	margin-top:1.5em;
+}
+
+img {
+	vertical-align:middle;
+}
+
+table {
+	border-collapse:separate;
+	border-spacing:0.1em 0.1em;
+}
+
+td {
+	border:1px solid #ccc;
+	text-align:center;
+	vertical-align:middle;
+}
+
+#winning_pick {
+	border:2px solid #0a5;
+}
+
+ul {
+	list-style-type: none;
+}
+
+#submitted_picks p{
+	color:red;
+	font-style: italic;
+}

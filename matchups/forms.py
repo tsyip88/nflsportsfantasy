@@ -26,6 +26,7 @@ class PickForm(forms.ModelForm):
                     self.fields['selected_team'].label = matchup_label
                     
 class TieBreakerForm(forms.ModelForm):
+    predicted_total_score = forms.CharField(label='Tie breaker')
     class Meta:
         model = matchups.models.TieBreakerPick
         fields = {'predicted_total_score'}
