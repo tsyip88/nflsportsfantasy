@@ -1,4 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h1>Submitting matchups</h1>
+
+{% if error_message %}
+	{{error_message}}
+{% endif %}
 
 {% if form_list %}
 	<form action="{% url 'matchups:submit_picks' %}" method="post">
@@ -12,3 +19,4 @@
 {% else %}
 	<p>No matchups available</p>
 {% endif %}
+{% endblock %}

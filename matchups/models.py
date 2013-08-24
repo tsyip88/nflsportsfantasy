@@ -20,10 +20,21 @@ class Matchup(models.Model):
     def __unicode__(self): 
         return self.full_name()
     
+    def winning_team(self):
+        if self.home_team_score < 0 or self.away_team_score < 0:
+            return None
+        if self.home_team_score > self.away_team_score:
+            return self.home_team
+        else:
+            return self.away_team 
+    
 class Pick(models.Model):
     matchup = models.ForeignKey(Matchup)
     selected_team = models.ForeignKey(Team)
     user = models.ForeignKey(User)
+    
+    def is_winning_pick(self):
+        return self.matchup.winning_team() == self.selected_team
     
 class TieBreaker(models.Model):
     matchup = models.ForeignKey(Matchup)
@@ -33,5 +44,5 @@ class TieBreaker(models.Model):
     
 class TieBreakerPick(models.Model):
     tie_breaker = models.ForeignKey(TieBreaker)
-    predicted_total_score = models.SmallIntegerField(default=-1)
+    predicted_total_score = models.SmallIntegerField()
     user = models.ForeignKey(User)

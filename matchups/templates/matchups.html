@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h1>Matchups</h1>
 
 {% if date_range %}
@@ -53,3 +56,4 @@
 {% else %}
 	<p>No matchups are available</p>
 {% endif %}
+{% endblock %}

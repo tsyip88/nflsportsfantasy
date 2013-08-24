@@ -49,7 +49,17 @@ def get_or_create_tie_breaker_pick(tie_breaker_matchup, user):
     if picks_for_tie_breakers.count() > 0:
         pick = picks_for_tie_breakers[0]
     else:
-        print str(tie_breaker_matchup.id)
-        tie_breaker = TieBreaker.objects.get(matchup__id=tie_breaker_matchup.id)
+        tie_breaker = TieBreaker.objects.get(matchup=tie_breaker_matchup)
         pick = TieBreakerPick(tie_breaker=tie_breaker, user=user)
     return pick
+
+def datetime_for_first_matchup(week_number):
+    start = start_date(week_number)
+    end = end_date(week_number)
+    matchups = Matchup.objects.filter(date_time__gt=start, date_time__lt=end).order_by('date_time')
+    if matchups.count() > 0:
+        return matchups[0].date_time
+    return None
+
+def has_first_matchup_of_week_started(week_number):
+    return datetime.datetime.now(pytz.timezone('UTC')) > datetime_for_first_matchup(week_number)

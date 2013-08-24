@@ -1,45 +1,23 @@
 from django.shortcuts import render
-from matchups.models import Matchup, Pick, TieBreaker
+from matchups.models import Matchup, Pick, TieBreaker, TieBreakerPick
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from matchups import utilities
 from matchups.forms import PickForm, TieBreakerForm
-                
-def all_matchups(request):
-    matchup_list = Matchup.objects.all()
-    date_range = "All matchups"
-    context = {'matchup_list' : matchup_list,
-               'date_range' : date_range,}
-    return render(request, 'matchups.html', context)
-
-def weekly_matchups(request, week_number):
-    if int(week_number) < 1:
-        context = {'date_range' : 'Week number is invalid'}
-        return render(request, 'matchups.html', context)
-    start_date = utilities.start_date(week_number)
-    end_date = utilities.end_date(week_number)
-    matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
-    date_range = 'From ' + str(start_date.date()) + ' to ' + str(end_date.date())
-    context = {'matchup_list' : matchup_list,
-               'tie_breaker_matchup' : tie_breaker_matchup,
-               'date_range' : date_range,}
-    return render(request, 'matchups.html', context)
-
-def current_matchups(request):
-    return weekly_matchups(request, utilities.current_week_number())
 
 def submit_picks_for_current_matchup(request):
     return submit_picks_for_week(request, utilities.current_week_number())
 
 @login_required
 def submit_picks_for_week(request, week_number):
+    if utilities.has_first_matchup_of_week_started(week_number):
+        return render(request, 'submit_picks.html', {'error_message':'Cannot change picks, first game of the week has started.'})
     matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
     error_message = ''
     form_list = list()
     for matchup in matchup_list:
         form = create_form_for_matchup(matchup, request)
         form_list.append(form)
-        
     if tie_breaker_matchup:
         form = create_form_for_matchup(tie_breaker_matchup, request)
         form_list.append(form)
@@ -69,43 +47,99 @@ def create_form_for_tie_breaker(tie_breaker_matchup, request):
     else:
         form = TieBreakerForm(instance=tie_breaker_pick)
     return form
-        
-class MatchupToSelections:
-    matchup = Matchup()
-    selections = list()
-    
-def results(request, matchup_list, tie_breaker_matchup):
-    users = User.objects.all()
-    selected_teams = list()
-    
-    if tie_breaker_matchup:
-        matchup_list.append(tie_breaker_matchup)
-    for matchup in matchup_list:
-        matchup_to_selections = MatchupToSelections()
-        matchup_to_selections.matchup = matchup
-        for user in users:
-            picks = Pick.objects.filter(matchup__id=matchup.id, user__id=user.id)
-            if(len(picks) < 1):
-                selected_team = ''
-            else:
-                selected_team = picks[0].selected_team
-            matchup_to_selections.selections.append(selected_team)
-        selected_teams.append(matchup_to_selections)
-    
-    picks = Pick.objects.all()
-    context = {'matchup_list': matchup_list,
-               'tie_breaker_matchup': tie_breaker_matchup,
-               'users' : users,
-               'selected_teams': selected_teams}
-    return render(request, 'results.html', context)
-    
-def all_results(request):
-    matchup_list = Matchup.objects.all()
-    return results(request, matchup_list)
 
-def current_results(request):
-    return weekly_results(request, utilities.current_week_number())
+def scoreboard_current_week(request):
+    return scoreboard_for_week(request, utilities.current_week_number())
     
-def weekly_results(request, week_number):
+def scoreboard_for_week(request, week_number):
     matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
-    return results(request, matchup_list, tie_breaker_matchup)
+    user_list = list()
+    if utilities.has_first_matchup_of_week_started(week_number):
+        user_list = order_list(request.user, User.objects.all())
+    elif request.user.is_authenticated():
+        user_list.append(request.user)
+    return scoreboard(request, matchup_list, tie_breaker_matchup, user_list)
+    
+def scoreboard(request, matchup_list, tie_breaker_matchup, user_list):
+    selected_teams = list()
+    for matchup in matchup_list:
+        matchup_to_selections = MatchupToSelections(matchup, user_list)
+        selected_teams.append(matchup_to_selections)
+    if tie_breaker_matchup:
+        tie_breaker_matchup_selections = TieBreakerMatchupSelections(tie_breaker_matchup, user_list)
+    wins = calculate_wins(user_list, matchup_list)
+    context = {'tie_breaker_matchup_selections': tie_breaker_matchup_selections,
+               'users' : user_list,
+               'selected_teams': selected_teams,
+               'wins': wins}
+    return render(request, 'scoreboard.html', context)
+
+def calculate_wins(users, matchups):
+    win_list = list()
+    for user in users:
+        number_of_wins = number_of_wins_for_user(user, matchups)
+        win_list.append(number_of_wins)
+    return win_list
+
+def number_of_wins_for_user(user, matchups):
+    wins = 0
+    for matchup in matchups:
+        picks_for_matchups = Pick.objects.filter(user=user, matchup=matchup)
+        if picks_for_matchups.count() > 0:
+            pick = picks_for_matchups[0]
+            if pick.is_winning_pick():
+                wins += 1
+    return wins
+
+def order_list(current_user, users):
+    ordered_user_list = list()
+    for user in users:
+        if user == current_user:
+            ordered_user_list.insert(0,user)
+        else:
+            ordered_user_list.append(user)
+    return ordered_user_list
+        
+class MatchupToSelections(object):
+    matchup = Matchup()
+    picks = list()
+    def __init__(self, matchup, users):
+        self.matchup = matchup
+        self.picks = list()
+        for user in users:
+            pick_list = Pick.objects.filter(matchup=matchup, user=user)
+            if(pick_list.count() < 1):
+                pick = None
+            else:
+                pick = pick_list[0]
+            self.picks.append(pick)
+            
+class TieBreakerMatchupSelections(MatchupToSelections):
+    def __init__(self, matchup, users):
+        super(TieBreakerMatchupSelections, self).__init__(matchup, users)
+        tie_breaker = TieBreaker.objects.get(matchup=matchup)
+        self.tie_breaker_scores = list()
+        for user in users:
+            picks = TieBreakerPick.objects.filter(tie_breaker=tie_breaker,user=user)
+            if(picks.count() < 1):
+                predicted_total_score = ''
+            else:
+                predicted_total_score = picks[0].predicted_total_score
+            self.tie_breaker_scores.append(predicted_total_score)
+    tie_breaker_scores = list()
+
+def current_matchups(request):
+    return weekly_matchups(request, utilities.current_week_number())
+
+def weekly_matchups(request, week_number):
+    if int(week_number) < 1:
+        context = {'date_range' : 'Week number is invalid'}
+        return render(request, 'matchups.html', context)
+    start_date = utilities.start_date(week_number)
+    end_date = utilities.end_date(week_number)
+    matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
+    date_range = 'From ' + str(start_date.date()) + ' to ' + str(end_date.date())
+    context = {'matchup_list' : matchup_list,
+               'tie_breaker_matchup' : tie_breaker_matchup,
+               'date_range' : date_range,}
+    return render(request, 'matchups.html', context)

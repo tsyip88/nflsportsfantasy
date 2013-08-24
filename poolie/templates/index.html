@@ -1,11 +1,7 @@
+{% extends "base.html" %}
 
-{% if logged_in %}
-Welcome {{user}}. <a href="logout">Sign out</a>
-{% else %}
-<a href="login">Sign in</a>
-{% endif %}
+{% block content %}
 <ul>
 <li><a href="{% url 'teams:team_manager' %}">View teams</a></li>
-<li><a href="{% url 'matchups:current_matchups' %}">View current matchup</a></li>
-<li><a href="{% url 'matchups:all_matchups' %}">View all matchups</a></li>
-<li><a href="{% url 'matchups:submit_picks' %}">Submit picks</a></li>
+</ul>
+{% endblock %}
