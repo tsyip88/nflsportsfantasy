@@ -124,7 +124,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'teams',
-    'matchups'
+    'matchups',
+    'blog',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )

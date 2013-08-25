@@ -12,7 +12,7 @@
 			{% block header %}
 			<p>
 			{% if user.is_authenticated %}
-			Welcome {{user}}. <a href="{% url 'logout' %}">Sign out</a>
+			Welcome <a href="{% url 'user_options' %}">{{user}}</a>. <a href="{% url 'logout' %}">Sign out</a>
 			{% else %}
 			<a href="{% url 'login' %}">Sign in</a>
 			{% endif %}

@@ -3,6 +3,11 @@
 	padding:0;
 }
 
+a {
+	color:blue;
+	text-decoration:none;
+}
+
 body {
 	font-family: arial;
 	background-color:#444;
@@ -34,6 +39,7 @@ body {
 
 #footer {
 	text-align:center;
+	margin-bottom:0.5em;
 }
 
 #navigation {
@@ -57,6 +63,22 @@ body {
 
 #content * {
 padding:0.1em;
+}
+
+.blog_title {
+	color:#027;
+}
+.blog_date_time {
+	color:#555;
+	float:left;
+}
+.blog_author {
+	color:#555;
+	float:left;
+}
+.blog_content {
+	clear:both;
+	margin-bottom:2em;
 }
 
 .form {

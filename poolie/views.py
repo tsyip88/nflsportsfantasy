@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from django import forms
 import django.contrib.auth
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.forms import PasswordChangeForm
 from matchups.utilities import week_number_for_last_matchup, matchups_for_week
 import matchups.matchup_data_retriever
 from matchups.models import Matchup, TieBreaker
 import teams.team_data_retriever
 import teams.models
+import blog.models
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=20)
@@ -44,12 +46,38 @@ def logout(request):
     return render(request, 'successful_logout.html')
 
 def index(request):
-    if request.user.is_authenticated():
-        logged_in = True
+    all_blogs = blog.models.BlogPost.objects.all().order_by('-date_time')
+    max_number_of_blog_posts_per_page = 5
+    if all_blogs.count() > max_number_of_blog_posts_per_page:
+        displayed_blogs = all_blogs[0:max_number_of_blog_posts_per_page]
     else:
-        logged_in = False
-    context = {'logged_in': logged_in}
+        displayed_blogs = all_blogs
+    context = {'blog_posts':displayed_blogs}
     return render(request, "index.html", context)
+
+@login_required
+def user_options(request):
+    return render(request, "user_options.html")
+
+@login_required
+def change_password(request):
+    error_message = ''
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            print "Change!"
+        else:
+            error_message = "Failed to change password. Please try again."
+    else:
+        form = PasswordChangeForm(request.user)
+    context = {'form':form,
+               'error_message':error_message}
+    return render(request, "change_password.html", context)
+
+class ChangePasswordForm(forms.Form):
+    current_password = forms.CharField(max_length=50, widget=forms.PasswordInput)
+    new_password = forms.CharField(max_length=50, widget=forms.PasswordInput)
+    verify_new_password = forms.CharField(max_length=50, widget=forms.PasswordInput)
 
 @permission_required('matchups.add_matchup')
 def admin_actions(request):

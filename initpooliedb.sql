@@ -84,7 +84,7 @@ CREATE TABLE `auth_permission` (
   UNIQUE KEY `content_type_id` (`content_type_id`,`codename`),
   KEY `auth_permission_37ef4eb4` (`content_type_id`),
   CONSTRAINT `content_type_id_refs_id_d043b34a` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -93,7 +93,7 @@ CREATE TABLE `auth_permission` (
 
 LOCK TABLES `auth_permission` WRITE;
 /*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
-INSERT INTO `auth_permission` VALUES (1,'Can add permission',1,'add_permission'),(2,'Can change permission',1,'change_permission'),(3,'Can delete permission',1,'delete_permission'),(4,'Can add group',2,'add_group'),(5,'Can change group',2,'change_group'),(6,'Can delete group',2,'delete_group'),(7,'Can add user',3,'add_user'),(8,'Can change user',3,'change_user'),(9,'Can delete user',3,'delete_user'),(10,'Can add content type',4,'add_contenttype'),(11,'Can change content type',4,'change_contenttype'),(12,'Can delete content type',4,'delete_contenttype'),(13,'Can add session',5,'add_session'),(14,'Can change session',5,'change_session'),(15,'Can delete session',5,'delete_session'),(16,'Can add site',6,'add_site'),(17,'Can change site',6,'change_site'),(18,'Can delete site',6,'delete_site'),(19,'Can add log entry',7,'add_logentry'),(20,'Can change log entry',7,'change_logentry'),(21,'Can delete log entry',7,'delete_logentry'),(22,'Can add league',8,'add_league'),(23,'Can change league',8,'change_league'),(24,'Can delete league',8,'delete_league'),(25,'Can add conference',9,'add_conference'),(26,'Can change conference',9,'change_conference'),(27,'Can delete conference',9,'delete_conference'),(28,'Can add division',10,'add_division'),(29,'Can change division',10,'change_division'),(30,'Can delete division',10,'delete_division'),(31,'Can add team',11,'add_team'),(32,'Can change team',11,'change_team'),(33,'Can delete team',11,'delete_team'),(34,'Can add matchup',12,'add_matchup'),(35,'Can change matchup',12,'change_matchup'),(36,'Can delete matchup',12,'delete_matchup'),(37,'Can add pick',13,'add_pick'),(38,'Can change pick',13,'change_pick'),(39,'Can delete pick',13,'delete_pick'),(40,'Can add tie breaker',14,'add_tiebreaker'),(41,'Can change tie breaker',14,'change_tiebreaker'),(42,'Can delete tie breaker',14,'delete_tiebreaker'),(43,'Can add tie breaker pick',15,'add_tiebreakerpick'),(44,'Can change tie breaker pick',15,'change_tiebreakerpick'),(45,'Can delete tie breaker pick',15,'delete_tiebreakerpick');
+INSERT INTO `auth_permission` VALUES (1,'Can add permission',1,'add_permission'),(2,'Can change permission',1,'change_permission'),(3,'Can delete permission',1,'delete_permission'),(4,'Can add group',2,'add_group'),(5,'Can change group',2,'change_group'),(6,'Can delete group',2,'delete_group'),(7,'Can add user',3,'add_user'),(8,'Can change user',3,'change_user'),(9,'Can delete user',3,'delete_user'),(10,'Can add content type',4,'add_contenttype'),(11,'Can change content type',4,'change_contenttype'),(12,'Can delete content type',4,'delete_contenttype'),(13,'Can add session',5,'add_session'),(14,'Can change session',5,'change_session'),(15,'Can delete session',5,'delete_session'),(16,'Can add site',6,'add_site'),(17,'Can change site',6,'change_site'),(18,'Can delete site',6,'delete_site'),(19,'Can add log entry',7,'add_logentry'),(20,'Can change log entry',7,'change_logentry'),(21,'Can delete log entry',7,'delete_logentry'),(22,'Can add league',8,'add_league'),(23,'Can change league',8,'change_league'),(24,'Can delete league',8,'delete_league'),(25,'Can add conference',9,'add_conference'),(26,'Can change conference',9,'change_conference'),(27,'Can delete conference',9,'delete_conference'),(28,'Can add division',10,'add_division'),(29,'Can change division',10,'change_division'),(30,'Can delete division',10,'delete_division'),(31,'Can add team',11,'add_team'),(32,'Can change team',11,'change_team'),(33,'Can delete team',11,'delete_team'),(34,'Can add matchup',12,'add_matchup'),(35,'Can change matchup',12,'change_matchup'),(36,'Can delete matchup',12,'delete_matchup'),(37,'Can add pick',13,'add_pick'),(38,'Can change pick',13,'change_pick'),(39,'Can delete pick',13,'delete_pick'),(40,'Can add tie breaker',14,'add_tiebreaker'),(41,'Can change tie breaker',14,'change_tiebreaker'),(42,'Can delete tie breaker',14,'delete_tiebreaker'),(43,'Can add tie breaker pick',15,'add_tiebreakerpick'),(44,'Can change tie breaker pick',15,'change_tiebreakerpick'),(45,'Can delete tie breaker pick',15,'delete_tiebreakerpick'),(46,'Can add blog post',16,'add_blogpost'),(47,'Can change blog post',16,'change_blogpost'),(48,'Can delete blog post',16,'delete_blogpost');
 /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -190,6 +190,34 @@ LOCK TABLES `auth_user_user_permissions` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `blog_blogpost`
+--
+
+DROP TABLE IF EXISTS `blog_blogpost`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `blog_blogpost` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date_time` datetime NOT NULL,
+  `author_id` int(11) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `content` varchar(500) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `blog_blogpost_e969df21` (`author_id`),
+  CONSTRAINT `author_id_refs_id_01a962b8` FOREIGN KEY (`author_id`) REFERENCES `auth_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `blog_blogpost`
+--
+
+LOCK TABLES `blog_blogpost` WRITE;
+/*!40000 ALTER TABLE `blog_blogpost` DISABLE KEYS */;
+/*!40000 ALTER TABLE `blog_blogpost` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `django_admin_log`
 --
 
@@ -236,7 +264,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `app_label` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -245,7 +273,7 @@ CREATE TABLE `django_content_type` (
 
 LOCK TABLES `django_content_type` WRITE;
 /*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
-INSERT INTO `django_content_type` VALUES (1,'permission','auth','permission'),(2,'group','auth','group'),(3,'user','auth','user'),(4,'content type','contenttypes','contenttype'),(5,'session','sessions','session'),(6,'site','sites','site'),(7,'log entry','admin','logentry'),(8,'league','teams','league'),(9,'conference','teams','conference'),(10,'division','teams','division'),(11,'team','teams','team'),(12,'matchup','matchups','matchup'),(13,'pick','matchups','pick'),(14,'tie breaker','matchups','tiebreaker'),(15,'tie breaker pick','matchups','tiebreakerpick');
+INSERT INTO `django_content_type` VALUES (1,'permission','auth','permission'),(2,'group','auth','group'),(3,'user','auth','user'),(4,'content type','contenttypes','contenttype'),(5,'session','sessions','session'),(6,'site','sites','site'),(7,'log entry','admin','logentry'),(8,'league','teams','league'),(9,'conference','teams','conference'),(10,'division','teams','division'),(11,'team','teams','team'),(12,'matchup','matchups','matchup'),(13,'pick','matchups','pick'),(14,'tie breaker','matchups','tiebreaker'),(15,'tie breaker pick','matchups','tiebreakerpick'),(16,'blog post','blog','blogpost');
 /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -538,4 +566,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-08-25 10:00:52
+-- Dump completed on 2013-08-25 13:46:52
