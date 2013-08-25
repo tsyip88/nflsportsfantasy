@@ -16,9 +16,15 @@
 	{% endif %}
 
 	{% csrf_token %}
+		<div class="form">
 		<p>Username {{login_form.username}}</p>
+		</div>
+		<div class="form">
 		<p>Password {{login_form.password}}</p>
-		<input type="submit" value="login" />
+		</div>
+		<div class="form">
+		<input type="submit" value="Login" />
+		</div>
 	</form>
 {% endif %}
 {% endblock %}
