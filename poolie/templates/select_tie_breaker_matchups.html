@@ -1,0 +1,11 @@
+<form action="{% url 'select_tie_breaker_matchups' %}" method="post">
+	{% csrf_token %}
+{% for tie_breaker_week in tie_breaker_list %}
+	<div class="form">
+	{{tie_breaker_week.form}}
+	{% if tie_breaker_week.current_value %}{{tie_breaker_week.current_value}}
+	   {%else%}None set{%endif%}
+	</div>
+{% endfor %}
+	<input type="submit" name="submit_button" value="Submit" />
+</form>

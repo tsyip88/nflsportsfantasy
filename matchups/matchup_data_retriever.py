@@ -167,7 +167,7 @@ class MatchupScheduleParser(HTMLParser):
             if am_vs_pm == 'PM':
                 hour += 12
             if hour > 23:
-                hour -= 24
+                hour -= 12
             parsed_date_time = datetime.datetime(year,
                                                  month,
                                                  day,

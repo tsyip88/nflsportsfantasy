@@ -13,5 +13,6 @@ urlpatterns = patterns('',
     url(r'^login/$', views.login, name='login'),
     url(r'^logout/$', views.logout, name='logout'),
     url(r'^admin_actions/$', views.admin_actions, name='admin_actions'),
+    url(r'^select_tie_breaker_matchups/$', views.select_tie_breaker_matchups, name='select_tie_breaker_matchups'),
     url(r'^$', views.index, name='index'),
 )
