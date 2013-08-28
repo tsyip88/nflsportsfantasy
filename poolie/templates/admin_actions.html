@@ -1,4 +1,6 @@
+{% extends "base.html" %}
 
+{% block content %}
 <ul>
 
 <li><form action="{% url 'admin_actions' %}" method="post">
@@ -17,3 +19,4 @@
 </form></li>
 
 </ul>
+{% endblock %}

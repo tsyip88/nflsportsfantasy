@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h1>Matchups</h1>
 
 {% if date_range %}
@@ -30,7 +33,27 @@
 			</td>
 		</tr>
 		{% endfor %}
+		{% if tie_breaker_matchup %}
+		<strong>
+		<tr>
+			<td>{{tie_breaker_matchup.date_time_string}}</td>
+			<td>{{tie_breaker_matchup.home_team}}</td>
+			<td>
+			{% if tie_breaker_matchup.home_team_score >= 0 %}
+				{{tie_breaker_matchup.home_team_score}}
+			{% endif %}
+			</td>
+			<td>{{tie_breaker_matchup.away_team}}</td>
+			<td>
+			{% if tie_breaker_matchup.away_team_score >= 0 %}
+				{{tie_breaker_matchup.away_team_score}}
+			{% endif %}
+			</td>
+		</tr>
+		</strong>
+		{% endif %}
 	</table>
 {% else %}
 	<p>No matchups are available</p>
 {% endif %}
+{% endblock %}

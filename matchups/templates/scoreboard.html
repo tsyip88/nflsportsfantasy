@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Scoreboard</h1>
+<table>
+	<tr>
+		<th>Matchup</th>
+		{% for user in users %}
+		<th>{{user}}</th>
+		{% endfor %}
+	</tr>
+	{% for selected_teams_for_matchup in selected_teams %}
+	<tr>
+		<td><img src="{{STATIC_URL}}{{selected_teams_for_matchup.matchup.home_team.image_location}}"/> @ <img src="{{STATIC_URL}}{{selected_teams_for_matchup.matchup.away_team.image_location}}"/></td>
+		{% for pick in selected_teams_for_matchup.picks %}
+			{%if pick%}
+			<td{%if pick.is_winning_pick%} id="winning_pick"{%endif%}><img src="{{STATIC_URL}}{{pick.selected_team.image_location}}"/></td>
+			{% else %}
+			<td></td>
+			{% endif %}
+		{% endfor %}
+	</tr>
+	{% endfor %}
+	{% if tie_breaker_matchup_selections %}
+	<tr>
+		<td><img src="{{STATIC_URL}}{{tie_breaker_matchup_selections.matchup.home_team.image_location}}"/> @ <img src="{{STATIC_URL}}{{tie_breaker_matchup_selections.matchup.away_team.image_location}}"/></td>
+		{% for pick in tie_breaker_matchup_selections.picks %}
+			{%if pick%}
+			<td{%if pick.is_winning_pick%} id="winning_pick"{%endif%}><img src="{{STATIC_URL}}{{pick.selected_team.image_location}}"/></td>
+			{% else %}
+			<td></td>
+			{% endif %}
+		{% endfor %}
+	</tr>
+	<tr>
+		<td>Tie Breaker</td>
+		{% for score in tie_breaker_matchup_selections.tie_breaker_scores %}
+			<td>{{score}}</td>
+		{% endfor %}
+	</tr>
+	{% endif %}
+	{% if wins %}
+	<tr>
+		<td>Wins</td>
+		{% for win in wins %}
+			<td>{{win}}</td>
+		{% endfor %}
+	</tr>
+	{% endif %}
+</table>
+{% endblock %}
