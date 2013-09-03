@@ -120,6 +120,6 @@ ul {
 }
 
 #submitted_picks p{
-	color:red;
-	font-style: italic;
+	color:#0aa;
+	font-weight: bold;
 }

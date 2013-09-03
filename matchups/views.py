@@ -21,17 +21,14 @@ def submit_picks_for_week(request, week_number):
     else:
         matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
         for matchup in matchup_list:
-            form = create_form_for_matchup(matchup, request)
-            form_list.append(form)
-            if tie_breaker_matchup:
-                form = create_form_for_matchup(tie_breaker_matchup, request)
-                form_list.append(form)
-                form = create_form_for_tie_breaker(tie_breaker_matchup, request)
-                form_list.append(form)
+            form_list.append(create_form_for_matchup(matchup, request))
+        if tie_breaker_matchup: 
+            form_list.append(create_form_for_matchup(tie_breaker_matchup, request))
+            form_list.append(create_form_for_tie_breaker(tie_breaker_matchup, request))
     context = {'matchup_list' : matchup_list,
                'form_list' : form_list,
                'error_message' : error_message,
-               'selected_week': int(week_number),
+               'week_number': int(week_number),
                'submitted_picks': request.method=="POST",
                'weeks' : weeks,
                'week_dates' : week_dates}
@@ -76,7 +73,7 @@ def scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_numbe
         selected_teams.append(matchup_to_selections)
     if tie_breaker_matchup:
         tie_breaker_matchup_selections = TieBreakerMatchupSelections(tie_breaker_matchup, user_list)
-    wins = calculate_wins(user_list, matchup_list)
+    wins = calculate_wins(user_list, matchup_list, tie_breaker_matchup)
     weeks = range(1,utilities.week_number_for_last_matchup())
     date_format = "%b %d"
     week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
@@ -89,22 +86,29 @@ def scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_numbe
                'wins': wins}
     return render(request, 'scoreboard.html', context)
 
-def calculate_wins(users, matchups):
+def calculate_wins(users, matchups, tie_breaker_matchup):
     win_list = list()
     for user in users:
-        number_of_wins = number_of_wins_for_user(user, matchups)
+        number_of_wins = number_of_wins_for_user(user, matchups, tie_breaker_matchup)
         win_list.append(number_of_wins)
     return win_list
 
-def number_of_wins_for_user(user, matchups):
+def number_of_wins_for_user(user, matchups, tie_breaker_matchup):
     wins = 0
     for matchup in matchups:
-        picks_for_matchups = Pick.objects.filter(user=user, matchup=matchup)
-        if picks_for_matchups.count() > 0:
-            pick = picks_for_matchups[0]
-            if pick.is_winning_pick():
-                wins += 1
+        if picked_the_winning_team(user, matchup):
+            wins += 1
+    if tie_breaker_matchup and picked_the_winning_team(user, tie_breaker_matchup):
+        wins += 1
     return wins
+
+def picked_the_winning_team(user, matchup):
+    picks_for_matchups = Pick.objects.filter(user=user, matchup=matchup)
+    if picks_for_matchups.count() > 0:
+        pick = picks_for_matchups[0]
+        if pick.is_winning_pick():
+            return True
+    return False
 
 def order_list(current_user, users):
     ordered_user_list = list()

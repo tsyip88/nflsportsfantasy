@@ -2,7 +2,7 @@
 
 {% block content %}
 <div id="content_title">
-<h1>Submitting matchups <em>Week {{selected_week}} - {{week_dates}}</em></h1>
+<h1>Submitting matchups <em>Week {{week_number}} - {{week_dates}}</em></h1>
 </div>
 
 {% if submitted_picks %}
@@ -12,11 +12,11 @@
 {% endif %}
 
 <p>Week number:</p>
-{% for week_number in weeks %}
-{% if selected_week == week_number %}
+{% for week in weeks %}
+{% if week_number == week %}
 {{week_number}}
 {% else %}
-<a href="{% url 'matchups:submit_picks_for_week' week_number %}">{{week_number}}</a>  
+<a href="{% url 'matchups:submit_picks_for_week' week %}">{{week}}</a>  
 {% endif %}
 {% endfor %}
 
@@ -27,7 +27,7 @@
 {% endif %}
 
 {% if form_list %}
-	<form action="{% url 'matchups:submit_picks' %}" method="post">
+	<form action="{% url 'matchups:submit_picks_for_week' week_number %}" method="post">
 	{% csrf_token %}
 	
 	{% for form in form_list %}
