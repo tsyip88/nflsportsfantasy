@@ -30,3 +30,8 @@ class TieBreakerForm(forms.ModelForm):
     class Meta:
         model = matchups.models.TieBreakerPick
         fields = {'predicted_total_score'}
+        
+class MatchupForm(forms.ModelForm):
+    class Meta:
+        model = matchups.models.Matchup
+        fields = {'home_team_score', 'away_team_score'}

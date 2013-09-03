@@ -26,7 +26,7 @@ class Matchup(models.Model):
         if self.home_team_score > self.away_team_score:
             return self.home_team
         else:
-            return self.away_team 
+            return self.away_team
     
 class Pick(models.Model):
     matchup = models.ForeignKey(Matchup)

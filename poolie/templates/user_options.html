@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<a href="{% url 'password_change' %}">Change Password</a>
+<h1>Account Settings</h1>
+<ul>
+<li><a href="{% url 'password_change' %}">Change Password</a></li>
+
+{% if perms.matchups.add_matchup %}
+<li><a href="{% url 'matchups:update_current_scores' %}">Update Weekly Scores</a></li>
+{% endif %}
+</ul>
 {% endblock %}

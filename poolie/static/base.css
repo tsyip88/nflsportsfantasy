@@ -86,6 +86,10 @@ padding:0.1em;
 	margin-top:0.75em;
 }
 
+.matchup_label {
+	margin-top:1em;
+}
+
 .error_message{
 	color:#f00;
 	font-size:18px;
@@ -145,4 +149,8 @@ ul {
 #submitted_picks p{
 	color:#0aa;
 	font-weight: bold;
+}
+
+#update_scores .form{
+	margin-top:0.3em;
 }
