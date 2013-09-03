@@ -10,22 +10,24 @@ def submit_picks_for_current_matchup(request):
 
 @login_required
 def submit_picks_for_week(request, week_number):
-    if utilities.has_first_matchup_of_week_started(week_number):
-        return render(request, 'submit_picks.html', {'error_message':'Cannot change picks, first game of the week has started.'})
-    matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
-    error_message = ''
-    form_list = list()
-    for matchup in matchup_list:
-        form = create_form_for_matchup(matchup, request)
-        form_list.append(form)
-    if tie_breaker_matchup:
-        form = create_form_for_matchup(tie_breaker_matchup, request)
-        form_list.append(form)
-        form = create_form_for_tie_breaker(tie_breaker_matchup, request)
-        form_list.append(form)
     weeks = range(1,utilities.week_number_for_last_matchup())
     date_format = "%b %d"
     week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
+    matchup_list = None
+    form_list = list()
+    error_message = ''
+    if utilities.has_first_matchup_of_week_started(week_number):
+        error_message = 'Cannot change picks, first game of the week has already started.'
+    else:
+        matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
+        for matchup in matchup_list:
+            form = create_form_for_matchup(matchup, request)
+            form_list.append(form)
+            if tie_breaker_matchup:
+                form = create_form_for_matchup(tie_breaker_matchup, request)
+                form_list.append(form)
+                form = create_form_for_tie_breaker(tie_breaker_matchup, request)
+                form_list.append(form)
     context = {'matchup_list' : matchup_list,
                'form_list' : form_list,
                'error_message' : error_message,
