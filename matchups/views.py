@@ -71,26 +71,74 @@ def scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_numbe
     for matchup in matchup_list:
         matchup_to_selections = MatchupToSelections(matchup, user_list)
         selected_teams.append(matchup_to_selections)
+    wins = calculate_wins(user_list, matchup_list, tie_breaker_matchup)
+    
     if tie_breaker_matchup:
         tie_breaker_matchup_selections = TieBreakerMatchupSelections(tie_breaker_matchup, user_list)
-    wins = calculate_wins(user_list, matchup_list, tie_breaker_matchup)
     weeks = range(1,utilities.week_number_for_last_matchup())
     date_format = "%b %d"
     week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
+    winning_teams = list()
+    if utilities.week_is_over(week_number):
+        winning_teams = calculate_winners(wins, tie_breaker_matchup_selections)
     context = {'tie_breaker_matchup_selections': tie_breaker_matchup_selections,
                'users' : user_list,
                'selected_teams': selected_teams,
                'weeks': weeks,
                'selected_week': int(week_number),
                'week_dates': week_dates,
-               'wins': wins}
+               'wins': wins,
+               'winning_users': winning_teams}
     return render(request, 'scoreboard.html', context)
+
+def calculate_winners(wins, tie_breaker_matchup_selections):
+    winning_teams = list()
+    for win_to_user in wins:
+        if win_to_user.has_most_number_of_wins:
+            winning_teams.append(win_to_user.user)
+    if len(winning_teams) > 1:
+        winning_team_tie_breakers = list()
+        tie_breaker_matchup = tie_breaker_matchup_selections.matchup
+        actual_value = tie_breaker_matchup.home_team_score+tie_breaker_matchup.away_team_score
+        for tie_breaker_score in tie_breaker_matchup_selections.tie_breaker_scores:
+            if tie_breaker_score.user in winning_teams:
+                winning_team_tie_breakers.append(tie_breaker_score)
+                
+        closest_diff_between_tie_breaker_and_actual = diff_between_scores(winning_team_tie_breakers[0].value, actual_value)
+        for tie_breaker_score in winning_team_tie_breakers:
+            difference = diff_between_scores(actual_value, tie_breaker_score.value) 
+            if difference < closest_diff_between_tie_breaker_and_actual:
+                closest_diff_between_tie_breaker_and_actual = difference
+        winning_teams = list()        
+        for tie_breaker_score in winning_team_tie_breakers:
+            if diff_between_scores(actual_value, tie_breaker_score.value) == closest_diff_between_tie_breaker_and_actual:
+                winning_teams.append(tie_breaker_score.user)
+                tie_breaker_score.is_winning_tie_breaker = True
+    return winning_teams
+
+def diff_between_scores(first_score, second_score):
+    return abs(first_score - second_score)
+
+class WinsToUser(object):
+    number_of_wins = 0
+    user = None
+    has_most_number_of_wins = False
+    def __init__(self, num_wins, user):
+        self.number_of_wins = num_wins
+        self.user = user
 
 def calculate_wins(users, matchups, tie_breaker_matchup):
     win_list = list()
+    most_wins = 0
     for user in users:
-        number_of_wins = number_of_wins_for_user(user, matchups, tie_breaker_matchup)
-        win_list.append(number_of_wins)
+        wins_to_user = WinsToUser(number_of_wins_for_user(user, matchups, tie_breaker_matchup), user)
+        win_list.append(wins_to_user)
+        if wins_to_user.number_of_wins > most_wins:
+            most_wins = wins_to_user.number_of_wins
+    if most_wins > 0:
+        for win in win_list:
+            if win.number_of_wins == most_wins:
+                win.has_most_number_of_wins = True
     return win_list
 
 def number_of_wins_for_user(user, matchups, tie_breaker_matchup):
@@ -132,6 +180,14 @@ class MatchupToSelections(object):
             else:
                 pick = pick_list[0]
             self.picks.append(pick)
+    
+class TieBreakerScore(object):
+    value = 0
+    is_winning_tie_breaker = False
+    user = None
+    def __init__(self, score, user):
+        self.value = score
+        self.user = user
             
 class TieBreakerMatchupSelections(MatchupToSelections):
     def __init__(self, matchup, users):
@@ -144,7 +200,7 @@ class TieBreakerMatchupSelections(MatchupToSelections):
                 predicted_total_score = ''
             else:
                 predicted_total_score = picks[0].predicted_total_score
-            self.tie_breaker_scores.append(predicted_total_score)
+            self.tie_breaker_scores.append(TieBreakerScore(predicted_total_score, user))
     tie_breaker_scores = list()
 
 def current_matchups(request):

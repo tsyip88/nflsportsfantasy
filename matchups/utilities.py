@@ -17,6 +17,9 @@ def end_date(week_number):
     end_date = start_date(week_number) + datetime.timedelta(weeks=1)
     return end_date
 
+def week_is_over(week_number):
+    return datetime.datetime.now(pytz.timezone('US/Mountain')) > end_date(week_number)
+
 def current_week_number():
     time_elapsed_since_week_1 = datetime.datetime.now(pytz.timezone('US/Mountain'))-week_1_start_datetime()
     if(time_elapsed_since_week_1.total_seconds() < 0):

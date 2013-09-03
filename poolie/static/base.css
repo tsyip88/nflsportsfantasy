@@ -92,6 +92,22 @@ padding:0.1em;
 	font-style:italic;
 }
 
+.matchup table{
+	border-collapse:collapse;
+}
+
+.matchup td{
+	border:0;
+}
+
+.away_team_score{
+	color:red;
+}
+
+.most_wins{
+	border:2px solid #0a5;
+}
+
 #submit_button {
 	margin-top:1.5em;
 }
@@ -105,13 +121,20 @@ table {
 	border-spacing:0.1em 0.1em;
 }
 
+.winning_user {
+	border:2px solid #0a5;
+}
+.winning_tie_breaker {
+	border:2px solid #0a5;
+}
+
 td {
 	border:1px solid #ccc;
 	text-align:center;
 	vertical-align:middle;
 }
 
-#winning_pick {
+.winning_pick {
 	border:2px solid #0a5;
 }
 

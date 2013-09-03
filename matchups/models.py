@@ -36,6 +36,9 @@ class Pick(models.Model):
     def is_winning_pick(self):
         return self.matchup.winning_team() == self.selected_team
     
+    def __unicode__(self): 
+        return self.user.username + " - " + str(self.matchup.full_name())
+    
 class TieBreaker(models.Model):
     matchup = models.ForeignKey(Matchup)
     
@@ -46,3 +49,6 @@ class TieBreakerPick(models.Model):
     tie_breaker = models.ForeignKey(TieBreaker)
     predicted_total_score = models.SmallIntegerField()
     user = models.ForeignKey(User)
+    
+    def __unicode__(self): 
+        return self.user.username + " - " + str(self.tie_breaker.matchup.full_name())

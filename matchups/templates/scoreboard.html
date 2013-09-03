@@ -18,15 +18,29 @@
 	<tr>
 		<th>Matchup</th>
 		{% for user in users %}
-		<th>{{user}}</th>
+		<th{%if user in winning_users%} class="winning_user"{%endif%}>{{user}}</th>
 		{% endfor %}
 	</tr>
 	{% for selected_teams_for_matchup in selected_teams %}
 	<tr>
-		<td><img src="{{STATIC_URL}}{{selected_teams_for_matchup.matchup.home_team.image_location}}"/> @ <img src="{{STATIC_URL}}{{selected_teams_for_matchup.matchup.away_team.image_location}}"/></td>
+		<td>
+		<div class="matchup">
+		<table><tr>
+			<td>
+				<img src="{{STATIC_URL}}{{selected_teams_for_matchup.matchup.away_team.image_location}}"/>
+				{%if selected_teams_for_matchup.matchup.away_team_score > 1%}<p>{{selected_teams_for_matchup.matchup.away_team_score}}</p>{%endif%}
+			</td>
+			<td>@</td>
+			<td>
+				<img src="{{STATIC_URL}}{{selected_teams_for_matchup.matchup.home_team.image_location}}"/>
+				{%if selected_teams_for_matchup.matchup.away_team_score > 1%}<p>{{selected_teams_for_matchup.matchup.home_team_score}}</p>{%endif%}
+			</td>
+		</tr></table>
+		</div>
+		</td>
 		{% for pick in selected_teams_for_matchup.picks %}
 			{%if pick%}
-			<td{%if pick.is_winning_pick%} id="winning_pick"{%endif%}><img src="{{STATIC_URL}}{{pick.selected_team.image_location}}"/></td>
+			<td{%if pick.is_winning_pick%} class="winning_pick"{%endif%}><img src="{{STATIC_URL}}{{pick.selected_team.image_location}}"/></td>
 			{% else %}
 			<td></td>
 			{% endif %}
@@ -35,10 +49,25 @@
 	{% endfor %}
 	{% if tie_breaker_matchup_selections %}
 	<tr>
-		<td><img src="{{STATIC_URL}}{{tie_breaker_matchup_selections.matchup.home_team.image_location}}"/> @ <img src="{{STATIC_URL}}{{tie_breaker_matchup_selections.matchup.away_team.image_location}}"/></td>
+		<td>
+		<div class="matchup">
+		<table><tr>
+			<td>
+				<img src="{{STATIC_URL}}{{tie_breaker_matchup_selections.matchup.away_team.image_location}}"/>
+				{%if tie_breaker_matchup_selections.matchup.away_team_score > 1%}<p>{{tie_breaker_matchup_selections.matchup.away_team_score}}</p>{%endif%}
+			</td>
+			<td>@</td>
+			<td>
+				<img src="{{STATIC_URL}}{{tie_breaker_matchup_selections.matchup.home_team.image_location}}"/>
+				{%if tie_breaker_matchup_selections.matchup.away_team_score > 1%}<p>{{tie_breaker_matchup_selections.matchup.home_team_score}}</p>{%endif%}
+			</td>
+		</tr></table>
+		</div>
+		</td>
+		
 		{% for pick in tie_breaker_matchup_selections.picks %}
 			{%if pick%}
-			<td{%if pick.is_winning_pick%} id="winning_pick"{%endif%}><img src="{{STATIC_URL}}{{pick.selected_team.image_location}}"/></td>
+			<td{%if pick.is_winning_pick%} class="winning_pick"{%endif%}><img src="{{STATIC_URL}}{{pick.selected_team.image_location}}"/></td>
 			{% else %}
 			<td></td>
 			{% endif %}
@@ -47,7 +76,7 @@
 	<tr>
 		<td>Tie Breaker</td>
 		{% for score in tie_breaker_matchup_selections.tie_breaker_scores %}
-			<td>{{score}}</td>
+			<td{%if score.is_winning_tie_breaker%} class="winning_tie_breaker"{%endif%}>{{score.value}}</td>
 		{% endfor %}
 	</tr>
 	{% endif %}
@@ -55,7 +84,7 @@
 	<tr>
 		<td>Wins</td>
 		{% for win in wins %}
-			<td>{{win}}</td>
+			<td{%if win.has_most_number_of_wins %} class="most_wins"{%endif%}>{{win.number_of_wins}}</td>
 		{% endfor %}
 	</tr>
 	{% endif %}
