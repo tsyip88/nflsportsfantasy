@@ -2,6 +2,7 @@ import datetime
 import pytz
 import math
 from matchups.models import Matchup, TieBreaker, Pick, TieBreakerPick
+from django.contrib.auth.models import User
 
 DAYS_IN_A_WEEK = 7
 
@@ -51,6 +52,13 @@ def matchups_for_week(week_number):
         matchups = Matchup.objects.filter(date_time__gt=start, date_time__lt=end)
         
     return matchups, tie_breaker_matchup
+    
+def users_that_have_submitted_picks_for_week(week_number):
+    user_list = list()
+    for user in User.objects.all():
+        if Pick.objects.filter(user=user).count() > 0:
+            user_list.append(user)
+    return user_list
     
 def get_or_create_pick(matchup, user):
     picks_for_matchup = Pick.objects.filter(matchup=matchup, user=user)

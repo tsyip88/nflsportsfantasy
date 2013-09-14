@@ -154,3 +154,7 @@ ul {
 #update_scores .form{
 	margin-top:0.3em;
 }
+
+#scoreboard_table{
+	overflow-x:auto;
+}

@@ -79,10 +79,8 @@ def update_scores_for_week(request, week_number):
 
 def create_form_for_matchup_scores(matchup, request):
     if request.method == "POST":
-        print "posted!"
         matchup_form = MatchupForm(request.POST, instance=matchup, prefix=matchup.id)
         if matchup_form.is_valid():
-            print "valid!"
             matchup_form.save()
     else:
         matchup_form = MatchupForm(instance=matchup, prefix=matchup.id)
@@ -93,7 +91,7 @@ def scoreboard_for_week(request, week_number):
     matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
     user_list = list()
     if utilities.has_first_matchup_of_week_started(week_number):
-        user_list = order_list(request.user, User.objects.all())
+        user_list = order_list(request.user, utilities.users_that_have_submitted_picks_for_week(week_number))
     elif request.user.is_authenticated():
         user_list.append(request.user)
     return scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number)
