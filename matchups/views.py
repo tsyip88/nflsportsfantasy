@@ -211,15 +211,11 @@ def picked_the_winning_team(user, matchup):
 
 def order_list(current_user, users):
     ordered_user_list = list()
-    found_user = False
     for user in users:
         if user == current_user:
             ordered_user_list.insert(0,user)
-            found_user = True
         else:
             ordered_user_list.append(user)
-    if not found_user:
-        ordered_user_list.insert(0,current_user)
     return ordered_user_list
         
 class MatchupToSelections(object):
