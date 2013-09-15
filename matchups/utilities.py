@@ -55,8 +55,10 @@ def matchups_for_week(week_number):
     
 def users_that_have_submitted_picks_for_week(week_number):
     user_list = list()
+    start = start_date(week_number)
+    end = end_date(week_number)
     for user in User.objects.all():
-        if Pick.objects.filter(user=user).count() > 0:
+        if Pick.objects.filter(user=user, matchup__date_time__gt=start, matchup__date_time__lt=end).count() > 0:
             user_list.append(user)
     return user_list
     

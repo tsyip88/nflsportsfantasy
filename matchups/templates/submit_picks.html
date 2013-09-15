@@ -2,8 +2,38 @@
 
 {% block content %}
 <div id="content_title">
-<h1>Submitting matchups <em>Week {{week_number}} - {{week_dates}}</em></h1>
+{% if is_admin %}
+<h1>Submitting picks for {{submit_user}}
+{% else %}
+<h1>Submit Picks 
+{% endif %}
+<em> Week {{week_number}} - {{week_dates}}</em></h1>
 </div>
+
+{% if is_admin %}
+<p>Select User</p>
+<form id="user_selection_form" action="{% url 'matchups:admin_submit_picks_for_week' week_number submit_user.id %}" method="post">
+{% csrf_token %}
+<select id='user_selection' name='user_select'>
+{% for user_option in users %}
+{% if user_option == submit_user %}
+<option selected>{{user_option}}</option>
+{% else %}
+<option>{{user_option}}</option>
+{% endif %}
+{% endfor %}
+</select>
+</form>
+{% endif %}
+
+<script>
+var handleChange = function(event){
+var form = document.querySelector('#user_selection_form');
+form.submit();
+}
+var selector = document.querySelector('#user_selection');
+selector.addEventListener('change', handleChange);
+</script>
 
 {% if submitted_picks %}
 <div id="submitted_picks">
@@ -16,7 +46,11 @@
 {% if week_number == week %}
 {{week_number}}
 {% else %}
-<a href="{% url 'matchups:submit_picks_for_week' week %}">{{week}}</a>  
+{% if submit_user == user %}
+<a href="{% url 'matchups:submit_picks_for_week' week %}">{{week}}</a>
+{% else %}
+<a href="{% url 'matchups:admin_submit_picks_for_week' week submit_user.id%}">{{week}}</a>
+{% endif %}
 {% endif %}
 {% endfor %}
 
@@ -27,7 +61,11 @@
 {% endif %}
 
 {% if form_list %}
-	<form action="{% url 'matchups:submit_picks_for_week' week_number %}" method="post">
+	{% if submit_user == user %}
+	<form action="{% url 'matchups:submit_picks_for_week' week_number %}" method="post" name="nme1">
+	{% else %}
+	<form action="{% url 'matchups:admin_submit_picks_for_week' week_number submit_user.id %}" method="post">
+	{% endif %}
 	{% csrf_token %}
 	
 	{% for form in form_list %}
@@ -36,7 +74,7 @@
 	</div>
 	{% endfor %}
 		<div id="submit_button">
-			<input type="submit" value="Submit picks" id="submit"/>
+			<input type="submit" value="Submit picks" id="submit" name="submit_picks"/>
 		</div>
 	</form>
 {% else %}

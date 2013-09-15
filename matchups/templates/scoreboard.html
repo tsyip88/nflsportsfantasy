@@ -10,7 +10,13 @@
 {% if selected_week == week_number %}
 {{week_number}}
 {% else %}
-<a href="{% url 'matchups:scoreboard_for_week' week_number %}">{{week_number}}</a>  
+
+{% if is_admin %}
+<a href="{% url 'matchups:admin_scoreboard_for_week' week_number %}">{{week_number}}</a>
+{% else %}
+<a href="{% url 'matchups:scoreboard_for_week' week_number %}">{{week_number}}</a>
+{% endif %}
+  
 {% endif %}
 {% endfor %}
 

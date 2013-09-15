@@ -3,7 +3,7 @@ from django import forms
 import django.contrib.auth
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import PasswordChangeForm
-from matchups.utilities import week_number_for_last_matchup, matchups_for_week
+from matchups.utilities import week_number_for_last_matchup, matchups_for_week, current_week_number
 import matchups.matchup_data_retriever
 from matchups.models import Matchup, TieBreaker
 import teams.team_data_retriever
@@ -57,7 +57,8 @@ def index(request):
 
 @login_required
 def user_options(request):
-    return render(request, "user_options.html")
+    context = {'week_number':current_week_number()}
+    return render(request, "user_options.html", context)
 
 @login_required
 def change_password(request):

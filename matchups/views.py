@@ -1,41 +1,57 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from matchups.models import Matchup, Pick, TieBreaker, TieBreakerPick
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
 from matchups import utilities
 from matchups.forms import PickForm, TieBreakerForm, MatchupForm
+from django.contrib.auth.models import User
 
 def submit_picks_for_current_matchup(request):
     return submit_picks_for_week(request, utilities.current_week_number())
 
+@permission_required('matchups.add_matchup')
+def admin_submit_picks_for_week(request, week_number, user_id):
+    user = get_object_or_404(User, id=user_id)
+    return submit_picks_for_user(request, week_number, user, True)
+
 @login_required
 def submit_picks_for_week(request, week_number):
+    return submit_picks_for_user(request, week_number, request.user)
+
+@login_required
+def submit_picks_for_user(request, week_number, user, is_admin = False):
+    if request.method =="POST" and request.POST.has_key('user_select'):
+        selected_username = request.POST.get('user_select')
+        selected_user = User.objects.get(username=selected_username)
+        return redirect('matchups:admin_submit_picks_for_week', week_number=week_number, user_id=selected_user.id)
     weeks = range(1,utilities.week_number_for_last_matchup())
     date_format = "%b %d"
     week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
     matchup_list = None
     form_list = list()
     error_message = ''
-    if utilities.has_first_matchup_of_week_started(week_number):
+    if utilities.has_first_matchup_of_week_started(week_number) and not is_admin:
         error_message = 'Cannot change picks, first game of the week has already started.'
     else:
         matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
         for matchup in matchup_list:
-            form_list.append(create_form_for_matchup(matchup, request))
+            form_list.append(create_form_for_matchup(matchup, request, user))
         if tie_breaker_matchup: 
-            form_list.append(create_form_for_matchup(tie_breaker_matchup, request))
-            form_list.append(create_form_for_tie_breaker(tie_breaker_matchup, request))
+            form_list.append(create_form_for_matchup(tie_breaker_matchup, request, user))
+            form_list.append(create_form_for_tie_breaker(tie_breaker_matchup, request, user))
     context = {'matchup_list' : matchup_list,
                'form_list' : form_list,
                'error_message' : error_message,
                'week_number': int(week_number),
                'submitted_picks': request.method=="POST",
                'weeks' : weeks,
-               'week_dates' : week_dates}
+               'week_dates' : week_dates,
+               'users' : User.objects.all(),
+               'submit_user' : user,
+               'is_admin' : is_admin}
     return render(request, 'submit_picks.html', context)
 
-def create_form_for_matchup(matchup, request):
-    pick = utilities.get_or_create_pick(matchup, request.user)
+def create_form_for_matchup(matchup, request, user):
+    pick = utilities.get_or_create_pick(matchup, user)
     if request.method == "POST":
         form = PickForm(request.POST, prefix=matchup.id, instance=pick)
         if form.is_valid():
@@ -44,8 +60,8 @@ def create_form_for_matchup(matchup, request):
         form = PickForm(instance=pick, prefix=matchup.id)
     return form
 
-def create_form_for_tie_breaker(tie_breaker_matchup, request):
-    tie_breaker_pick = utilities.get_or_create_tie_breaker_pick(tie_breaker_matchup, request.user)
+def create_form_for_tie_breaker(tie_breaker_matchup, request, user):
+    tie_breaker_pick = utilities.get_or_create_tie_breaker_pick(tie_breaker_matchup, user)
     if request.method == "POST":
         form = TieBreakerForm(request.POST, instance=tie_breaker_pick)
         if form.is_valid():
@@ -86,17 +102,21 @@ def create_form_for_matchup_scores(matchup, request):
         matchup_form = MatchupForm(instance=matchup, prefix=matchup.id)
     return matchup_form
     
+@permission_required('matchups.add_matchup')
+def admin_scoreboard_for_week(request, week_number):
+    return scoreboard_for_week(request, week_number, True)
     
-def scoreboard_for_week(request, week_number):
+def scoreboard_for_week(request, week_number, is_admin=False):
     matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
     user_list = list()
-    if utilities.has_first_matchup_of_week_started(week_number):
-        user_list = order_list(request.user, utilities.users_that_have_submitted_picks_for_week(week_number))
-    elif request.user.is_authenticated():
-        user_list.append(request.user)
-    return scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number)
+    user = request.user
+    if utilities.has_first_matchup_of_week_started(week_number) or is_admin:
+        user_list = order_list(user, utilities.users_that_have_submitted_picks_for_week(week_number))
+    elif user.is_authenticated():
+        user_list.append(user)
+    return scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number, is_admin)
     
-def scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number):
+def scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number, is_admin=False):
     selected_teams = list()
     for matchup in matchup_list:
         matchup_to_selections = MatchupToSelections(matchup, user_list)
@@ -118,7 +138,8 @@ def scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_numbe
                'selected_week': int(week_number),
                'week_dates': week_dates,
                'wins': wins,
-               'winning_users': winning_teams}
+               'winning_users': winning_teams,
+               'is_admin': is_admin}
     return render(request, 'scoreboard.html', context)
 
 def calculate_winners(wins, tie_breaker_matchup_selections):
@@ -190,11 +211,15 @@ def picked_the_winning_team(user, matchup):
 
 def order_list(current_user, users):
     ordered_user_list = list()
+    found_user = False
     for user in users:
         if user == current_user:
             ordered_user_list.insert(0,user)
+            found_user = True
         else:
             ordered_user_list.append(user)
+    if not found_user:
+        ordered_user_list.insert(0,current_user)
     return ordered_user_list
         
 class MatchupToSelections(object):
