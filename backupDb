@@ -1,5 +1,5 @@
 #!/bin/bash
-SQL_USER='tsyip88'
+SQL_USER='poolie'
 SQL_PASSWORD='lagisbad'
 SQL_HOST='mysql.server'
 SQL_PORT='3306'
