@@ -5,4 +5,5 @@ SQL_HOST='mysql.server'
 SQL_PORT='3306'
 SQL_DATABASE_NAME='poolie$poolie'
 SQL_LOG_DATE=$(date +"%F")
-mysqldump --host=$SQL_HOST --port=$SQL_PORT --user=$SQL_USER --password=$SQL_PASSWORD $SQL_DATABASE_NAME > ../DbBackup-$SQL_LOG_DATE.sql
+OUTPUT_FILE=/home/poolie/workspace/backups/poolieDb-$SQL_LOG_DATE.sql
+mysqldump --host=$SQL_HOST --port=$SQL_PORT --user=$SQL_USER --password=$SQL_PASSWORD $SQL_DATABASE_NAME > $OUTPUT_FILE
