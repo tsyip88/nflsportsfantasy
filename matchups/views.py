@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, F
 
 def submit_picks_for_current_matchup(request):
-    return submit_picks_for_week(request, utilities.current_week_number())
+    return submit_picks_for_week(request, utilities.current_submit_picks_week_number())
 
 @permission_required('matchups.add_matchup')
 def admin_submit_picks_for_week(request, week_number, user_id):

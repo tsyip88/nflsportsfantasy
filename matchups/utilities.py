@@ -31,6 +31,12 @@ def current_week_number():
     else:
         return (int(time_elapsed_since_week_1.days)/DAYS_IN_A_WEEK) + 1
     
+def current_submit_picks_week_number():
+    current_week = current_week_number()
+    if week_is_over(current_week):
+        return current_week+1
+    return current_week
+    
 def week_number_for_last_matchup():
     matchups = Matchup.objects.all().order_by('date_time')
     if matchups.count() > 0:
