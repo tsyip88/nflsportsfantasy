@@ -1,4 +1,5 @@
 #!/bin/bash
 cp poolie/settings.py ..
+git checkout -- poolie/settings.py
 git pull origin master
 cp ../settings.py poolie/settings.py 
