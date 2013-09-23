@@ -127,6 +127,7 @@ table {
 
 .winning_user {
 	border:2px solid #0a5;
+	background-color:#ff0;
 }
 .winning_tie_breaker {
 	border:2px solid #0a5;

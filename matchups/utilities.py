@@ -19,7 +19,10 @@ def end_date(week_number):
     return end_date
 
 def week_is_over(week_number):
-    return datetime.datetime.now(pytz.timezone('US/Mountain')) > end_date(week_number)
+    start = start_date(week_number)
+    end = end_date(week_number)
+    matchups = Matchup.objects.filter(date_time__gt=start,date_time__lt=end, home_team_score=-1, away_team_score=-1)
+    return matchups.count()==0
 
 def current_week_number():
     time_elapsed_since_week_1 = datetime.datetime.now(pytz.timezone('US/Mountain'))-week_1_start_datetime()
