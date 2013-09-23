@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from matchups import utilities
 from matchups.forms import PickForm, TieBreakerForm, MatchupForm
 from django.contrib.auth.models import User
+from django.db.models import Q, F
 
 def submit_picks_for_current_matchup(request):
     return submit_picks_for_week(request, utilities.current_week_number())
@@ -107,22 +108,21 @@ def admin_scoreboard_for_week(request, week_number):
     return scoreboard_for_week(request, week_number, True)
     
 def scoreboard_for_week(request, week_number, is_admin=False):
-    matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
     user_list = list()
     user = request.user
-    if utilities.has_first_matchup_of_week_started(week_number) or is_admin:
+    if is_admin or utilities.has_first_matchup_of_week_started(week_number):
         user_list = order_list(user, utilities.users_that_have_submitted_picks_for_week(week_number))
     elif user.is_authenticated():
         user_list.append(user)
-    return scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number, is_admin)
+    return scoreboard(request, user_list, week_number, is_admin)
     
-def scoreboard(request, matchup_list, tie_breaker_matchup, user_list, week_number, is_admin=False):
+def scoreboard(request, user_list, week_number, is_admin=False):
+    matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
     selected_teams = list()
     for matchup in matchup_list:
         matchup_to_selections = MatchupToSelections(matchup, user_list)
         selected_teams.append(matchup_to_selections)
-    wins = calculate_wins(user_list, matchup_list, tie_breaker_matchup)
-    
+    wins = calculate_wins(user_list, week_number)
     if tie_breaker_matchup:
         tie_breaker_matchup_selections = TieBreakerMatchupSelections(tie_breaker_matchup, user_list)
     weeks = range(1,utilities.week_number_for_last_matchup())
@@ -178,36 +178,31 @@ class WinsToUser(object):
         self.number_of_wins = num_wins
         self.user = user
 
-def calculate_wins(users, matchups, tie_breaker_matchup):
-    win_list = list()
-    most_wins = 0
+def calculate_wins(users, week_number):
+    wins_to_user_hash = dict()
+    wins_to_user_list = list()
+    start = utilities.start_date(week_number)
+    end = utilities.end_date(week_number)
     for user in users:
-        wins_to_user = WinsToUser(number_of_wins_for_user(user, matchups, tie_breaker_matchup), user)
-        win_list.append(wins_to_user)
-        if wins_to_user.number_of_wins > most_wins:
-            most_wins = wins_to_user.number_of_wins
-    if most_wins > 0:
-        for win in win_list:
-            if win.number_of_wins == most_wins:
-                win.has_most_number_of_wins = True
-    return win_list
-
-def number_of_wins_for_user(user, matchups, tie_breaker_matchup):
-    wins = 0
-    for matchup in matchups:
-        if picked_the_winning_team(user, matchup):
-            wins += 1
-    if tie_breaker_matchup and picked_the_winning_team(user, tie_breaker_matchup):
-        wins += 1
-    return wins
-
-def picked_the_winning_team(user, matchup):
-    picks_for_matchups = Pick.objects.filter(user=user, matchup=matchup)
-    if picks_for_matchups.count() > 0:
-        pick = picks_for_matchups[0]
-        if pick.is_winning_pick():
-            return True
-    return False
+        picks_for_matchups = Pick.objects.filter(Q(matchup__date_time__gt=start,
+                                                   matchup__date_time__lt=end,
+                                                   matchup__home_team_score__gt=-1,
+                                                   user=user),
+                                                 Q(matchup__home_team_score__gt=F('matchup__away_team_score'),
+                                                   matchup__home_team=F('selected_team')) |
+                                                 Q(matchup__away_team_score__gt=F('matchup__home_team_score'),
+                                                   matchup__away_team=F('selected_team')))
+        wins_to_user_hash[user] = picks_for_matchups.count()
+    if len(wins_to_user_hash) == 0:
+        most_wins = 0
+    else:
+        most_wins = max(wins_to_user_hash.values())
+    for user in users:
+        wins_to_user = WinsToUser(wins_to_user_hash[user], user)
+        if most_wins > 0 and wins_to_user.number_of_wins == most_wins:
+            wins_to_user.has_most_number_of_wins = True
+        wins_to_user_list.append(wins_to_user)
+    return wins_to_user_list
 
 def order_list(current_user, users):
     ordered_user_list = list()
@@ -221,17 +216,17 @@ def order_list(current_user, users):
 class MatchupToSelections(object):
     matchup = Matchup()
     picks = list()
+    current_user_pick = None
     def __init__(self, matchup, users):
         self.matchup = matchup
         self.picks = list()
+        pick_list = Pick.objects.filter(matchup=matchup)
+        pick_dict = dict()
+        for pick in pick_list:
+            pick_dict[pick.user] = pick
         for user in users:
-            pick_list = Pick.objects.filter(matchup=matchup, user=user)
-            if(pick_list.count() < 1):
-                pick = None
-            else:
-                pick = pick_list[0]
-            self.picks.append(pick)
-    
+            self.picks.append(pick_dict.get(user))
+
 class TieBreakerScore(object):
     value = 0
     is_winning_tie_breaker = False
