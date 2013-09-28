@@ -13,11 +13,10 @@ def scoreboard_current_week(request):
     
 def scoreboard(request, week_number, is_admin=False):
     user_list = list()
-    user = request.user
     if is_admin or utilities.has_first_matchup_of_week_started(week_number):
-        user_list = order_list(user, utilities.users_that_have_submitted_picks_for_week(week_number))
-    elif user.is_authenticated():
-        user_list.append(user)
+        user_list = order_list(request.user, utilities.users_that_have_submitted_picks_for_week(week_number))
+    elif request.user.is_authenticated():
+        user_list.append(request.user)
     matchup_list, tie_breaker_matchup = utilities.matchups_for_week(week_number)
     selected_teams = list()
     for matchup in matchup_list:
@@ -59,7 +58,7 @@ class MatchupToSelections(object):
     def __init__(self, matchup, users):
         self.matchup = matchup
         self.picks = list()
-        pick_list = Pick.objects.filter(matchup=matchup)
+        pick_list = Pick.objects.prefetch_related('user').filter(matchup=matchup)
         pick_dict = dict()
         for pick in pick_list:
             pick_dict[pick.user] = pick
