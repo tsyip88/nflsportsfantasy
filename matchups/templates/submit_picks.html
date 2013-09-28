@@ -46,10 +46,10 @@ selector.addEventListener('change', handleChange);
 {% if week_number == week %}
 {{week_number}}
 {% else %}
-{% if submit_user == user %}
-<a href="{% url 'matchups:submit_picks_for_week' week %}">{{week}}</a>
-{% else %}
+{% if is_admin %}
 <a href="{% url 'matchups:admin_submit_picks_for_week' week submit_user.id%}">{{week}}</a>
+{% else %}
+<a href="{% url 'matchups:submit_picks_for_week' week %}">{{week}}</a>
 {% endif %}
 {% endif %}
 {% endfor %}
