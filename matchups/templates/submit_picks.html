@@ -61,10 +61,10 @@ selector.addEventListener('change', handleChange);
 {% endif %}
 
 {% if form_list %}
-	{% if submit_user == user %}
-	<form action="{% url 'matchups:submit_picks_for_week' week_number %}" method="post" name="nme1">
-	{% else %}
+	{% if is_admin %}
 	<form action="{% url 'matchups:admin_submit_picks_for_week' week_number submit_user.id %}" method="post">
+	{% else %}
+	<form action="{% url 'matchups:submit_picks_for_week' week_number %}" method="post" name="nme1">
 	{% endif %}
 	{% csrf_token %}
 	
