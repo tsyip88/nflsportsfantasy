@@ -58,7 +58,7 @@ class MatchupToSelections(object):
     def __init__(self, matchup, users):
         self.matchup = matchup
         self.picks = list()
-        pick_list = Pick.objects.prefetch_related('user').filter(matchup=matchup)
+        pick_list = Pick.objects.prefetch_related('user', 'matchup', 'selected_team').filter(matchup=matchup)
         pick_dict = dict()
         for pick in pick_list:
             pick_dict[pick.user] = pick
