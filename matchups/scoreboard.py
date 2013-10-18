@@ -25,7 +25,7 @@ def scoreboard(request, week_number, is_admin=False):
     wins = calculate_wins(user_list, week_number)
     if tie_breaker_matchup:
         tie_breaker_matchup_selections = TieBreakerMatchupSelections(tie_breaker_matchup, user_list)
-    weeks = range(1,utilities.week_number_for_last_matchup())
+    weeks = range(1,utilities.week_number_for_last_matchup()+1)
     date_format = "%b %d"
     week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
     winning_teams = list()

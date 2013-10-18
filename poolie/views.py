@@ -100,12 +100,12 @@ def admin_actions(request):
 def select_tie_breaker_matchups(request):
     tie_breaker_list = list()
     if request.method == 'POST':
-        for week_number in range(1, week_number_for_last_matchup()):
+        for week_number in range(1, week_number_for_last_matchup()+1):
             field_name = str(week_number)+'-matchup_field'
             selected_tie_breaker = request.POST[field_name]
             if selected_tie_breaker:
                 set_tie_breaker_for_week(week_number, selected_tie_breaker)
-    for week_number in range(1, week_number_for_last_matchup()):
+    for week_number in range(1, week_number_for_last_matchup()+1):
         matchups, tie_breaker = matchups_for_week(week_number)
         form = SelectTieBreakerForm(matchups, tie_breaker, prefix=week_number)
         tie_breaker_list.append(TieBreakerFormToCurrentValue(form, tie_breaker))

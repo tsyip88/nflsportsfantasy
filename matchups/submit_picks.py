@@ -22,7 +22,7 @@ def submit_picks_for_user(request, week_number, user, is_admin = False):
         selected_username = request.POST.get('user_select')
         selected_user = User.objects.get(username=selected_username)
         return redirect('matchups:admin_submit_picks_for_week', week_number=week_number, user_id=selected_user.id)
-    weeks = range(1,utilities.week_number_for_last_matchup())
+    weeks = range(1,utilities.week_number_for_last_matchup()+1)
     date_format = "%b %d"
     week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
     matchup_list = None

@@ -8,7 +8,7 @@ def update_current_scores(request):
 
 @permission_required('matchups.add_matchup')
 def update_scores_for_week(request, week_number):
-    weeks = range(1,utilities.week_number_for_last_matchup())
+    weeks = range(1,utilities.week_number_for_last_matchup()+1)
     date_format = "%b %d"
     week_dates = str(utilities.start_date(week_number).strftime(date_format)) + " to " + str(utilities.end_date(week_number).strftime(date_format))
     forms = list()
