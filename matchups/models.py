@@ -21,7 +21,7 @@ class Matchup(models.Model):
         return self.full_name()
     
     def winning_team(self):
-        if self.home_team_score < 0 or self.away_team_score < 0:
+        if self.home_team_score < 0 or self.away_team_score < 0 or self.away_team_score == self.home_team_score:
             return None
         if self.home_team_score > self.away_team_score:
             return self.home_team
