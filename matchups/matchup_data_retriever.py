@@ -12,7 +12,13 @@ class MatchupDataRetriever:
     @staticmethod    
     def load_matchups():
         MatchupDataRetriever.clear_matchups()
-        url = "http://espn.go.com/nfl/schedule"
+        MatchupDataRetriever.load_matchup_at_url("http://espn.go.com/nfl/schedule")
+        for i in range(2,18):
+            url = "http://espn.go.com/nfl/schedule/_/week/" + str(i)
+            MatchupDataRetriever.load_matchup_at_url(url)
+    
+    @staticmethod
+    def load_matchup_at_url(url):
         contents, success = MatchupDataRetriever.retrieve_site_contents(url)        
         if not success:
             print "failed to load contents from: " + url
@@ -46,7 +52,7 @@ class MatchupDataRetriever:
         return True
 
 DATE_FIELD_WIDTH = 170    
-START_YEAR = 2013
+START_YEAR = 2014
 MONTH_STRING_TO_INTEGER_HASH = {'JAN':1,
                                 'FEB':2,
                                 'MAR':3,

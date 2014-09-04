@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 DAYS_IN_A_WEEK = 7
 
 def week_1_start_datetime():
-    return datetime.datetime(year=2013, month=9, day=4, tzinfo=pytz.timezone('US/Mountain'))
+    return datetime.datetime(year=2014, month=9, day=3, tzinfo=pytz.timezone('US/Mountain'))
 
 def start_date(week_number):
     offset_from_week_1 = datetime.timedelta(weeks = int(week_number)-1)
