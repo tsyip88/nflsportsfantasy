@@ -51,7 +51,6 @@ class MatchupDataRetriever:
         return True
 
 class MatchupScheduleParser(HTMLParser):
-    in_teams_field = False
     in_home_team_field = False
     matchups = list()
     last_retrieved_date = None
@@ -61,9 +60,7 @@ class MatchupScheduleParser(HTMLParser):
     zulu = pytz.timezone('Etc/Zulu')
     mountain = pytz.timezone('US/Mountain')
     
-    def handle_starttag(self, tag, attrs):        
-        if tag == 'div' and self.attr_contains_val(attrs,'class','teams'):
-            self.in_teams_field = True
+    def handle_starttag(self, tag, attrs):
             
         if tag == 'td':
             if self.attr_contains_val(attrs,'class','home'):
@@ -77,29 +74,27 @@ class MatchupScheduleParser(HTMLParser):
                 print timeDiff
                 if date_time:
                     self.date_time = date_time
+                    
+        if tag == 'abbr':
+            team_name_string = self.attribute_value(attrs,'title')
+            if team_name_string:
+                all_teams = teams.models.Team.objects.all()
+                for team in all_teams:
+                    if team.full_name()==team_name_string:
+                        retrieved_team = team
+                        break 
+                if retrieved_team:
+                    if self.in_home_team_field:
+                        self.home_team = retrieved_team
+                    else:
+                        self.away_team = retrieved_team            
         
         if tag == 'tr':
             self.home_team = None
             self.away_team = None
             self.date_time = None
             
-    def handle_data(self, data):
-        if self.in_teams_field:
-            all_teams = teams.models.Team.objects.all()
-            retrieved_team = None
-            for team in all_teams:
-                if team.schedule_lookup_name()==data:
-                    retrieved_team = team
-                    break 
-            if retrieved_team:
-                if self.away_team == None:
-                    self.away_team = retrieved_team
-                else:
-                    self.home_team = retrieved_team
-            
-    def handle_endtag(self, tag):     
-        if tag == 'span':
-            self.in_teams_field = False            
+    def handle_endtag(self, tag):        
         if tag == 'td':
             self.in_home_team_field = False
             self.in_date_field = False
